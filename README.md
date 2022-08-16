@@ -2,16 +2,26 @@
 
 ## Funcionamento:
 
-Inicialmente espera-se que os 10 clients sejam iniciados e estejam conectados. Em seguida cada client manda seu client_id (Timestamp em que foi criado) para 
-os demais a fim de ser identificado. Então é realizada a eleição, onde cada client envia seu voto (número aleatório entre 0 e 9), o lider é o client que recebe 
-o maior número de votos, em caso de empate é utilizado o maior client_id. Por fim, o líder envia um challenge para ele e os demais clients, cada client busca a
-seed que soluciona o desafio e assim que a encontra, submete aos demais clients que verificam se ela é válida, se for válida o client que a submeteu vence.
-O processo se repete, o challenge muda a cada iteração e o líder continua fixo.
+Para entrar na rede cada nó envia seu NodeId (utilizado UUID convertido para inteiro de 32 bits) para 
+os demais a fim de ser identificado. Em seguida é realizada a troca de chaves públicas(salvas em arquivos de nome NodeId + ".txt"). Posteriormente,
+é feita a eleição do líder,o dono do maior NodeId é o líder. O líder envia o challenge para todos os nós, cada nó busca busca a seed que soluciona o desafio, e assim que a encontra, submete aos demais nós que verificam se ela é válida,se a maioria dos nós validarem a seed, o nó que a submeteu vence.
+O processo se repete, o challenge muda a cada iteração e o líder também.
 
-## Topicos utilizados:
+Utilizada exchange do tipo fanout, que copia e roteia as mensagems recebidas para todas as filas que estão vinculadas a ela.
+Um mesmo callback para o recebimento de todas as exchanges é utilizado, sendo encaminhado para os devidos fins de acordo com os itens presentes na mensagem.
+Exceto as exchanges 'ppd/init' e 'ppd/pubkey', as demais exchanges tem as mensagens assinadas pelo autor (`NodeId`) e sempre é checada a veracidade da 
+informação, conforme especificação.
+Cada fila tem uma função de callback diferente, que será acionada quando as mensagens forem recebidas.
 
-- 'init': topico onde é submetido o id de cada client, após cada client ter a lista com seu id e dos demais começa a fase da eleição onde os votos são enviados para o topico election.
-- 'election': topico onde é submetido o voto de cada client, após cada client ter a lista com seu voto e dos demais, é verificado o numero mais frequente da lista, que é eleito o líder.
-Em caso de empate é utilizado o maior client_id. Em seguida o líder publica o desafio no tópico challenge.
-- 'challenge': tópico onde os clients recebem os desafios, cada client resolve o desafio, assim que encontra a seed o client a submete ao tópico ppd/seed.
-- 'ppd/seed': tópico onde é recebido a seed, os clients verificam se essa seed é valida, se todos os clients aprovaram a seed, o client que a submeteu vence, posteriomente é publicado pelo líder um novo desafio no tópico challenge.
+
+
+
+## Exchanges utilizadas:
+
+- 'ppd/init': entrada dos nós na rede.
+- 'ppd/pubkey': troca das chaves públicas entre os participantes do sistema. 
+- 'ppd/election': eleição do líder.
+- 'ppd/challenge': nós recebem os desafios.
+- 'ppd/solution': onde é recebido a solução do desafio.
+- 'ppd/voting': votação para a validação do desafio.
+
