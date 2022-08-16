@@ -9,10 +9,18 @@ O processo se repete, o challenge muda a cada iteração e o líder também.
 
 Utilizada exchange do tipo fanout, que copia e roteia as mensagems recebidas para todas as filas que estão vinculadas a ela.
 
-Exceto as exchanges 'ppd/init' e 'ppd/pubkey', as demais exchanges tem as mensagens assinadas pelo autor (`NodeId`) e sempre é checada a veracidade da 
+Exceto as exchanges 'ppd/init' e 'ppd/pubkey', as demais exchanges tem as mensagens assinadas pelo autor (NodeId) e sempre é checada a veracidade da 
 informação, conforme especificação.
 
 Cada fila tem uma função de callback diferente, que será acionada quando as mensagens forem recebidas.
+
+## validação da seed e estratégia de brute force 
+Foi criada a função check_seed para validar seeds garantindo que estejam em conformidade com o alfabeto 
+descrito e que seja uma seed que resolva o desafio. Depois de checar se a seed possui somente caracteres
+permitidos, a função aplica o algoritmo SHA-1 na seed e checa se o tamanho prefixo de bits 0 na hash tem 
+tamanho maior ou igual ao número do desafio.
+A estratégia para brute force foi fazer uso de threads que geram strings aleatórias de tamanho aleatório entre 
+10 e 100, assim a probabilidade de testar strings duplicadas é aproximadamente 0.
 
 ## Exchanges utilizadas:
 
