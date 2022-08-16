@@ -23,3 +23,5 @@ Cada fila tem uma função de callback diferente, que será acionada quando as m
 - 'ppd/solution': onde é recebido a solução do desafio.
 - 'ppd/voting': votação para a validação do desafio.
 
+## Executando o código:
+Entre na pasta lab6_pp e rode o código lab6.py
