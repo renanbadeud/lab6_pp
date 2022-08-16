@@ -8,13 +8,11 @@ os demais a fim de ser identificado. Em seguida é realizada a troca de chaves p
 O processo se repete, o challenge muda a cada iteração e o líder também.
 
 Utilizada exchange do tipo fanout, que copia e roteia as mensagems recebidas para todas as filas que estão vinculadas a ela.
-Um mesmo callback para o recebimento de todas as exchanges é utilizado, sendo encaminhado para os devidos fins de acordo com os itens presentes na mensagem.
+
 Exceto as exchanges 'ppd/init' e 'ppd/pubkey', as demais exchanges tem as mensagens assinadas pelo autor (`NodeId`) e sempre é checada a veracidade da 
 informação, conforme especificação.
+
 Cada fila tem uma função de callback diferente, que será acionada quando as mensagens forem recebidas.
-
-
-
 
 ## Exchanges utilizadas:
 
