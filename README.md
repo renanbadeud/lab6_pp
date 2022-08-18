@@ -32,4 +32,4 @@ A estratégia para brute force foi fazer uso de threads que geram strings aleat�
 - 'ppd/voting': votação para a validação do desafio.
 
 ## Executando o código:
-Entre na pasta lab6_pp e rode o código lab6.py
+Entre na pasta node1 e rode o código lab6.py
