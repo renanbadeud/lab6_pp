@@ -24,6 +24,7 @@ from seed_utils import Seed
 global arquivo 
 arquivo = 'banco-de-dados.csv'
 
+
 def getTransactionID():
     try:
         df = pd.read_csv(arquivo)
@@ -144,6 +145,7 @@ def main():
     users_pubkey = []
     election = []
     votes = []
+
     qtd_usuarios = int(input("Quantidade de usuarios do sistema: "))
 
     NodeId =	{
@@ -151,7 +153,7 @@ def main():
     }  
     NodeId['NodeId'] = random_id()
     NodeId = json.dumps(NodeId)
-    numero = '1' 
+    numero = '458' 
 
     #ESPERA 'n' PARTICIPANTES ENVIAREM O NodeId
     def init(ch, method, properties, body): 
@@ -160,16 +162,15 @@ def main():
             users.append(user)
             channel.basic_publish(exchange = 'ppd/init', routing_key = '', body = NodeId)
         elif(len(users) <= qtd_usuarios):
-            for x in users:
-                if(x != user):
-                    channel.basic_publish(exchange = 'ppd/init', routing_key = '', body = NodeId)
-                    users.append(user)
-                if(len(users) == qtd_usuarios):
-                    dic = json.loads(NodeId)
-                    pubkey = share_pubkey()
-                    msg = { "NodeId": dic.get("NodeId"), "PubKey" :pubkey}
-                    msg = json.dumps(msg)
-                    channel.basic_publish(exchange = 'ppd/pubkey', routing_key = '', body = msg)
+            if(user not in users):
+                channel.basic_publish(exchange = 'ppd/init', routing_key = '', body = NodeId)
+                users.append(user)
+            if(len(users) == qtd_usuarios):
+                dic = json.loads(NodeId)
+                pubkey = share_pubkey()
+                msg = { "NodeId": dic.get("NodeId"), "PubKey" :pubkey}
+                msg = json.dumps(msg)
+                channel.basic_publish(exchange = 'ppd/pubkey', routing_key = '', body = msg)
         else:
             print("Sala cheia!!")
 
@@ -272,8 +273,6 @@ def main():
 
         df.to_csv(arquivo, index=False)
         
-        # *¨¨¨¨¨* GRAVAR ID DO LIDER *¨¨¨¨¨* #
-        
         signature = message.get('Sign')
         del message["Sign"]
         msg = json.dumps(message)
@@ -313,7 +312,6 @@ def main():
             # Verifica se todas as threads acabaram 
             for thread in multThread:
                 thread.join()
-
         id = json.loads(NodeId)
         transactionID = msg.get("TransactionNumber") #getTransactionID()
 
@@ -322,13 +320,6 @@ def main():
         seed_msg = {'NodeId': id.get('NodeId'), 'TransactionNumber': transactionID, 'Seed': seed[0], 'Sign': sig}
         seed_msg = json.dumps(seed_msg)
         channel.basic_publish(exchange = 'ppd/solution', routing_key = '', body = seed_msg)
-
-        ##VERIFICAR SE PODE FAZER ISSO##
-        voting = {'NodeId': id.get('NodeId'), "TransactionNumber": transactionID, "Seed": seed[0],'Vote': 1, 'SolutionID': id.get('NodeId')}
-        sig = sign_message(voting)
-        voting_msg = {'NodeId': id.get('NodeId'), "TransactionNumber": transactionID, "Seed": seed[0], 'Vote': 1, 'SolutionID': id.get('NodeId'),'Sign': sig}
-        voting_msg = json.dumps(voting_msg)
-        channel.basic_publish(exchange = 'ppd/voting', routing_key = '', body = voting_msg)
 
     #CONFERE SLÇ E VOTA
     def votacao(ch, method, properties, body):
@@ -365,18 +356,7 @@ def main():
         count = 0
         message = body.decode()
         message = json.loads(message)
-
-        #ADICIONA O VOTO NA LISTA DE VOTOS SE A MENSAGEM ENVIADA FOR DIFERENTE
-        for x in users:
-            if(message.get('NodeId') == x.get('NodeId')):
-                if(len(votes) == 0):
-                    votes.append(message)
-                    break
-                for y in votes:
-                    if(message != y):
-                        votes.append(message)    
-        
-        #CONTABILIZA VOTOS
+        votes.append(message)
         if(len(votes) == qtd_usuarios):
             for x in votes:
                 signature = x.get('Sign')
@@ -411,13 +391,9 @@ def main():
                             elec_msg = { "NodeId": id.get("NodeId"), "ElectionNumber" : number, 'Sign': sig}
                             elec_msg = json.dumps(elec_msg)
                             channel.basic_publish(exchange = 'ppd/election', routing_key = '', body = elec_msg)
-                else:
-                    print("Mensagem Fraudada!!")
             votes.clear()
-    
-    credentials = pika.credentials.PlainCredentials("admin", "admin")
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='10.9.13.101', credentials=credentials))
-
+          
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host ='localhost'))
     channel = connection.channel()
 
     channel.exchange_declare(exchange ='ppd/init', exchange_type ='fanout')
