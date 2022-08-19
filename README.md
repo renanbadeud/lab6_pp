@@ -1,4 +1,5 @@
 # lab6_pp
+Grupo: Milena, Lorenzo, Renan
 
 ## Funcionamento:
 
@@ -30,6 +31,13 @@ A estratégia para brute force foi fazer uso de threads que geram strings aleat�
 - 'ppd/challenge': nós recebem os desafios.
 - 'ppd/solution': onde é recebido a solução do desafio.
 - 'ppd/voting': votação para a validação do desafio.
+
+## Requerimentos:
+- python3 -m pip install --upgrade pika
+- pip3 install -U PyCryptodome
+- sudo apt install python3-pandas
+- pip3 install threading
+- pip install python-time
 
 ## Executando o código:
 Entre na pasta node1 e rode o código lab6.py
