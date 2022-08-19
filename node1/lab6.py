@@ -33,7 +33,7 @@ def getTransactionID():
     transactionID = 0
     
     if(df is None):
-        lista = {"TransactionID":[0], "Challenge":[random.randint(1,20)], "Seed":[" "], "Winner": [-1]}
+        lista = {"TransactionID":[0], "Challenge":[random.randint(20,40)], "Seed":[" "], "Winner": [-1]}
         df = pd.DataFrame(lista)
     else:
         tam = len(df.iloc[:, 0])
@@ -41,7 +41,7 @@ def getTransactionID():
             return int(df.iloc[tam-1, 0])
         else:
             transactionID = int(df.iloc[(tam-1), 0])+1
-            lista = {"TransactionID":transactionID, "Challenge":[random.randint(1,20)], "Seed":[" "], "Winner": [-1]}
+            lista = {"TransactionID":transactionID, "Challenge":[random.randint(20,40)], "Seed":[" "], "Winner": [-1]}
             transaction = pd.DataFrame(lista)
 
             df = pd.concat([df,transaction], ignore_index = True)
