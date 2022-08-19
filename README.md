@@ -40,4 +40,4 @@ A estratégia para brute force foi fazer uso de threads que geram strings aleat�
 - pip install python-time
 
 ## Executando o código:
-Entre na pasta node1, abra o terminal, rode python3 lab6.py digite o número de usuários e aguarde eles se conectarem.
+Entre na pasta node1, abra o terminal, rode python3 lab6.py, digite o número de usuários e aguarde eles se conectarem.
